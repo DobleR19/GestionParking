@@ -45,55 +45,57 @@ public class Parking {
         boolean f = false;
         String numPlaza=null;
         Iterator<String> it= listadoPlazas.keySet().iterator();
-        while(it.hasNext() || f==true){
+        while(it.hasNext() && f==false){
             String snn = it.next();
-            Plaza plaza = listadoPlazas.get(snn);
+            Plaza plaza = this.getListadoPlazas().get(snn);
             if (plaza.getVehiculo()==null){
-                listadoPlazas.put(snn, plaza);
-                f=true;
-                numPlaza=plaza.getNumPlaza();
+                if(v instanceof Coche && plaza.getTipo()=='C'){
+                    plaza.setVehiculo(v);
+                    f=true;
+                    numPlaza= Integer.toString(plaza.getNumPlaza());
+                }
+                if (v instanceof Moto && plaza.getTipo()=='M'){
+                    plaza.setVehiculo(v);;
+                    f=true;
+                    numPlaza= Integer.toString(plaza.getNumPlaza());
+                }   
             }
         }
-        
         return numPlaza;
     }
     
     public int darBaja (int numPlaza){
-        String nPlaza=Integer.toString(numPlaza);
         int baja=1;
-        Plaza plaza=null;
         Iterator<String> it= listadoPlazas.keySet().iterator();
         while(it.hasNext()){
             String snn=it.next();
-            plaza=listadoPlazas.get(snn);
-            if(nPlaza==plaza.getNumPlaza()){
+            Plaza plaza=listadoPlazas.get(snn);
+            if(numPlaza==plaza.getNumPlaza()){
                 if(plaza.getVehiculo()!=null){
-                    listadoPlazas.remove(snn);
+                    plaza.setVehiculo(null);
                     baja=0;
-                }
-            }else {
-                baja=2;
+                }else {
+                    baja=2;
+                }   
             }
         }
-        if(plaza==null){
-            baja=1;
-        }
-    return baja;    
+        return baja;    
     }
+    
     public List<Plaza> listarPlazas(String estado,char tipoVehiculo){
-        List<Plaza>listado=new ArrayList<>();
-        List<Plaza>ocupadasCoches=new ArrayList<>();
-        List<Plaza>libresCoches=new ArrayList<>();
-        List<Plaza>ocupadasMotos=new ArrayList<>();
-        List<Plaza>libresMotos=new ArrayList<>();
+        List<Plaza> listado = new ArrayList<>();
+        List<Plaza> ocupadasCoches = new ArrayList<>();
+        List<Plaza> libresCoches = new ArrayList<>();
+        List<Plaza> ocupadasMotos = new ArrayList<>();
+        List<Plaza> libresMotos = new ArrayList<>();
         Iterator<String>it = listadoPlazas.keySet().iterator();
         while(it.hasNext()){
-            String snn=it.next();
-            Plaza plaza=listadoPlazas.get(snn);
-            if(plaza.getVehiculo()!=null && plaza.getTipo()=='C'){
+            String snn = it.next();
+            Plaza plaza = listadoPlazas.get(snn);
+            if(plaza.getVehiculo() != null && plaza.getTipo() == 'C'){
                 ocupadasCoches.add(plaza);
             }
-            if(plaza.getVehiculo()==null && plaza.getTipo()=='C'){
+            if(plaza.getVehiculo() == null && plaza.getTipo() == 'C'){
                 libresCoches.add(plaza);
             }
             if(plaza.getVehiculo()!=null && plaza.getTipo()=='M'){
@@ -105,18 +107,29 @@ public class Parking {
         if(estado.equals("ocupadas") && tipoVehiculo=='C'){
             listado=ocupadasCoches;
         }
-        if(estado.equals("libres"))
+        if(estado.equals("libres") && tipoVehiculo == 'C'){
+            listado = libresCoches;
+        }
+        if(estado.equals("ocupadas") && tipoVehiculo == 'M'){
+            listado = ocupadasMotos;
+        }
+        if(estado.equals("libres") && tipoVehiculo == 'M'){
+            listado = libresMotos;
+        }
         return listado;
     }
     
     public int ganancias() {
         int beneficios=0;
-        List<Plaza>listadoCoches=new ArrayList<>();
-        listadoCoches=listarPlazas("ocupadas",'C');
-        List<Plaza>listadoMotos=new ArrayList<>();
-        listadoMotos=listarPlazas("ocupadas",'M');
-        for(Plaza plaza:listadoCoches){
-            beneficios+=plaza.precio();
+        List<Plaza> listadoCoches = new ArrayList<>();
+        listadoCoches = listarPlazas("ocupadas",'C');
+        List<Plaza> listadoMotos = new ArrayList<>();
+        listadoMotos = listarPlazas("ocupadas",'M');
+        for(Plaza plaza: listadoCoches){
+            beneficios += plaza.precio();
+        }
+        for(Plaza plaza: listadoMotos){
+            beneficios += plaza.precio();
         }
         return beneficios;   
     }
